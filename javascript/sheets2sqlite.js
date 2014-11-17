@@ -1,64 +1,62 @@
-var WORKBOOK_ID = '1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA';
-var SPREADSHEET_WORKBOOK_URL = 'https://spreadsheets.google.com/feeds/worksheets/' + WORKBOOK_ID + '/public/values?alt=json';
-var WORKSHEETS_TO_LOAD = ['department', 'employee'];
-var sql = window.SQL;
-var db = null;
-var tables = [];
+var Sheets2sqlite = function(db, workbookId, tablesToProcess) {
+    this.db = db;
+    this.tablesToProcess = tablesToProcess;
+    this.tables = [];
+    this.control = {
+        reqs: 0,
+        reqOk: false,
+        resps: 0,
+        
+        ok: function() {
+            return (this.reqOk && (this.reqs == this.resps));
+        },
+        
+        reset: function() {
+            this.reqs = 0;
+            this.resps = 0;
+            this.reqOk = false;
+        }
+    };
+    
+    this.url = 'https://spreadsheets.google.com/feeds/worksheets/' + workbookId + '/public/values?alt=json';
+}
 
-var control = {
-    reqs: 0,
-    reqOk: false,
-    resps: 0,
-    
-    ok: function() {
-        return (this.reqOk && (this.reqs == this.resps));
-    },
-    
-    reset: function() {
-        this.reqs = 0;
-        this.resps = 0;
-        this.reqOk = false;
-    }
-};
-
-$(document).ready(function() {
-    db = new sql.Database();
-    
+Sheets2sqlite.prototype.start = function() {
     $.ajax({
-        url: SPREADSHEET_WORKBOOK_URL
+        url: this.url
     }).done(function(workbookData) {
         for(var i=0; i<workbookData.feed.entry.length; i++) {
             var entry = workbookData.feed.entry[i];
             var item = { name : entry.title.$t, link : entry.link[1].href + '?alt=json' };
             console.log('item:', item);
-            control.reqs++;
+            this.control.reqs++;
             (function(name, link) {
                 $.ajax({
                     url: link
                 }).done(function(worksheetData) {
-                    processWorksheetData(name, worksheetData);
+                    this.processWorksheetData(name, worksheetData);
                 });
             }) (item.name, item.link);
         }
-        control.reqOk = true;
+        this.control.reqOk = true;
     });
-});
+}
 
-var processWorksheetData = function(tableName, worksheetData) {
-    control.resps++;
-    if($.inArray(tableName, WORKSHEETS_TO_LOAD) >= 0) {
-        var table = createTable(tableName, worksheetData);
-        insertData(table, worksheetData);
-        tables.push(table);
+Sheets2sqlite.prototype.processWorksheetData = function(tableName, worksheetData) {
+    this.control.resps++;
+    if($.inArray(tableName, this.tablesToProcess) >= 0) {
+        var table = this.createTable(tableName, worksheetData);
+        this.insertData(table, worksheetData);
+        this.tables.push(table);
     }
     
-    if(control.ok()) {
-        loadData(tables);
-        control.reset();
+    if(this.control.ok()) {
+        this.loadData(this.tables);
+        this.control.reset();
     }
 }
 
-var createTable = function(tableName, worksheetData) {
+Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
     var columns = [];
     var table = {
         name: tableName,
@@ -155,7 +153,7 @@ var createTable = function(tableName, worksheetData) {
     table.columns = columns;
 }
 
-var insertData = function(table, worksheetData) {
+Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     var rows = [];
     
     var startIndex = 2 * table.columns.length;
@@ -188,10 +186,10 @@ var escape = function(text) {
     return temp;
 }
 
-var loadData = function(tables) {
+Sheets2sqlite.prototype.loadData = function(tables) {
     for(var i=0; i<tables.length; i++) {
         var table = tables[i];
-        db.exec(table.createSQL());
-        db.exec(table.insertSQL());
+        this.db.exec(table.createSQL());
+        this.db.exec(table.insertSQL());
     }
 }
