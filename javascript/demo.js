@@ -1,6 +1,8 @@
 var db = null;
 var sql = window.SQL;
 
+console.log('teste');
+
 $(document).ready(function() {
     db = new sql.Database();
     
