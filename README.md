@@ -33,16 +33,18 @@ Usage
 - On page load, run the following:
 
 ```Javascript
-var db = new window.SQL.Database();
-var workbookId = '1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA';
-var tablesToProcess = ['department', 'employee'];
-
-var functionToRun = function() {
-    console.log('done!');
-}
-
-var process = new Sheets2sqlite(db, workbookId, tablesToProcess);
-process.start(functionToRun);
+$(document).ready(function() {
+    var db = new window.SQL.Database();
+    var workbookId = '1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA';
+    var tablesToProcess = ['department', 'employee'];
+    
+    var functionToRun = function() {
+        console.log('done!');
+    }
+    
+    var process = new Sheets2sqlite(db, workbookId, tablesToProcess);
+    process.start(functionToRun);
+});
 ```
 
 Demo
