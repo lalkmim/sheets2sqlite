@@ -189,12 +189,6 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     table.rows = rows;
 }
 
-var escape = function(text) {
-    var temp = text.replace('\'', '\'\'');
-    temp = temp.replace('"', '""');
-    return temp;
-}
-
 Sheets2sqlite.prototype.loadData = function(tables) {
     for(var i=0; i<tables.length; i++) {
         var table = tables[i];
@@ -207,4 +201,10 @@ Sheets2sqlite.prototype.loadData = function(tables) {
         console.log('insert:', sql);
         this.db.exec(sql);
     }
+}
+
+var escape = function(text) {
+    var temp = text.replace('\'', '\'\'');
+    temp = temp.replace('"', '""');
+    return temp;
 }
