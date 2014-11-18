@@ -21,24 +21,27 @@ var Sheets2sqlite = function(db, workbookId, tablesToProcess) {
     this.url = 'https://spreadsheets.google.com/feeds/worksheets/' + workbookId + '/public/values?alt=json';
 }
 
-Sheets2sqlite.prototype.start = function() {
+Sheets2sqlite.prototype.start = function(done) {
+    this.done = done;
+    var that = this;
+    
     $.ajax({
         url: this.url
     }).done(function(workbookData) {
         for(var i=0; i<workbookData.feed.entry.length; i++) {
             var entry = workbookData.feed.entry[i];
-            var item = { name : entry.title.$t, link : entry.link[1].href + '?alt=json' };
-            console.log('item:', item);
-            this.control.reqs++;
+            var item = { name : entry.title.$t, link : entry.link[1].href.replace('https:', '') + '?alt=json' };
+            
+            that.control.reqs++;
             (function(name, link) {
                 $.ajax({
                     url: link
                 }).done(function(worksheetData) {
-                    this.processWorksheetData(name, worksheetData);
+                    that.processWorksheetData(name, worksheetData);
                 });
             }) (item.name, item.link);
         }
-        this.control.reqOk = true;
+        that.control.reqOk = true;
     });
 }
 
@@ -52,6 +55,7 @@ Sheets2sqlite.prototype.processWorksheetData = function(tableName, worksheetData
     
     if(this.control.ok()) {
         this.loadData(this.tables);
+        this.done();
         this.control.reset();
     }
 }
@@ -123,12 +127,13 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
     
     for(var i=0; i<worksheetData.feed.entry.length; i++) {
         var item = worksheetData.feed.entry[i];
-        if(item.gsx$cell.row == '1') {
-            var pos = parseInt(item.gsx$cell.col, 10) - 1;
+        
+        if(item.gs$cell.row == '1') {
+            var pos = parseInt(item.gs$cell.col, 10) - 1;
             
             var column = {
                 pos: pos,
-                name: item.gsx$cell.$t,
+                name: item.gs$cell.$t,
                 type: '',
                 fk: ''
             };
@@ -137,34 +142,38 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
             if(column.name.indexOf('id_') >= 0) {
                 table.fkCount++;
             }
-        } else if(item.gsx$cell.row == '2') {
-            var pos = parseInt(item.gsx$cell.col, 10) - 1;
+        } else if(item.gs$cell.row == '2') {
+            var pos = parseInt(item.gs$cell.col, 10) - 1;
             var column = columns[pos];
-            column.type = item.gsx$cell.$t;
-        } else if(item.gsx$cell.row == '3' && table.fkCount > 0) {
-            var pos = parseInt(item.gsx$cell.col, 10) - 1;
+            column.type = item.gs$cell.$t;
+        } else if(item.gs$cell.row == '3' && table.fkCount > 0) {
+            var pos = parseInt(item.gs$cell.col, 10) - 1;
             var column = columns[pos];
-            column.fk = item.gsx$cell.$t;
+            column.fk = item.gs$cell.$t;
         } else {
             break;
         }
     }
     
     table.columns = columns;
+    
+    return table;
 }
 
 Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     var rows = [];
     
-    var startIndex = 2 * table.columns.length;
-    if(table.fkCount > 0) {
-        startIndex = 3 * table.columns.length;
-    }
+    var linhaInicial = 3;
+    if(table.fkCount > 0) linhaInicial = 4;
     
     for(var i=0; i<worksheetData.feed.entry.length; i++) {
         var item = worksheetData.feed.entry[i];
-        var col = parseInt(item.gsx$cell.col, 10) - 1;
-        var row = parseInt(item.gsx$cell.row, 10) - (startIndex / table.columns.length);
+        var col = parseInt(item.gs$cell.col, 10) - 1;
+        var row = parseInt(item.gs$cell.row, 10) - linhaInicial;
+        
+        if(row < 0) {
+            continue;
+        }
         
         if(col == 0) {
             rows.push({
@@ -174,7 +183,7 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
         }
         
         var line = rows[row];
-        line.cells.push(item.gsx$cell.$t);
+        line.cells.push(item.gs$cell.$t);
     }
     
     table.rows = rows;
