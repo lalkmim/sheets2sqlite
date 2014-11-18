@@ -12,7 +12,15 @@ Pre-requisites
 Usage
 -----
 
-- Include sheets2sqlite.js file after jquery and sql.js
+1) On the spreadsheet:
+
+1.1) First line: the column name
+
+1.2) Second line: column type
+
+1.3) Third line (optional): foreign key like "table(referenced_column)"
+
+2) Include sheets2sqlite.js file after jquery and sql.js
 
 ```HTML
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
