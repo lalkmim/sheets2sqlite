@@ -8,6 +8,24 @@ $(document).ready(function() {
     
     var process = new Sheets2sqlite(db, '1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA', ['department', 'employee']);
     process.start(function() {
-        console.log(db.exec('SELECT * FROM department'));
+        for(var i=0; i<this.tables.length; i++) {
+            var table = this.tables[i];
+            $('div#sql').append(table.createSQL() + '<br /><br />');
+        }
+        
+        for(var i=0; i<this.tables.length; i++) {
+            var table = this.tables[i];
+            $('div#sql').append(table.insertSQL() + '<br /><br />');
+        }
+        
+        var sql = 'SELECT * FROM department d, employee e WHERE d.id = e.id_department ORDER BY d.name ASC, e.name ASC';
+        var result = db.exec(sql);
+        console.log(result);
+        
+        var el = tableCreate()(result[0].columns, result[0].values);
+        console.log('el:', el);
+        
+        $('div#sql').append(sql + '<br /><br />');
+        $('div#sql')[0].appendChild(el);
     });
 });

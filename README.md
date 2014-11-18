@@ -40,5 +40,6 @@ process.start(functionToRun);
 Demo
 ----
 
-Google Spredasheet: https://docs.google.com/spreadsheets/d/1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA/pubhtml
-Page loading as database: https://cdn.rawgit.com/lalkmim/sheets2sqlite/master/demo.html
+Google Spreadsheet: https://docs.google.com/spreadsheets/d/1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA/pubhtml
+
+Database loaded: https://cdn.rawgit.com/lalkmim/sheets2sqlite/master/demo.html

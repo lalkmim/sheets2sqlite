@@ -208,3 +208,20 @@ var escape = function(text) {
     temp = temp.replace('"', '""');
     return temp;
 }
+
+var tableCreate = function () {
+    function valconcat(vals, tagName) {
+        if (vals.length === 0) return '';
+        var open = '<'+tagName+'>', close='</'+tagName+'>';
+        return open + vals.join(close + open) + close;
+    }
+    
+    return function (columns, values) {
+        var tbl  = document.createElement('table');
+        var html = '<thead>' + valconcat(columns, 'th') + '</thead>';
+        var rows = values.map(function(v){ return valconcat(v, 'td'); });
+        html += '<tbody>' + valconcat(rows, 'tr') + '</tbody>';
+        tbl.innerHTML = html;
+        return tbl;
+    }
+}
