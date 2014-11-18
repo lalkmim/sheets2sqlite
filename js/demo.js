@@ -20,12 +20,16 @@ $(document).ready(function() {
         
         var sql = 'SELECT * FROM department d, employee e WHERE d.id = e.id_department ORDER BY d.name ASC, e.name ASC';
         var result = db.exec(sql);
-        console.log(result);
         
         var el = tableCreate()(result[0].columns, result[0].values);
-        console.log('el:', el);
         
         $('div#sql').append(sql + '<br /><br />');
         $('div#sql')[0].appendChild(el);
+        
+        var table = $('div#sql table').DataTable({
+    	    paging: false,
+    	    ordering: false,
+    	    info: false
+    	});
     });
 });

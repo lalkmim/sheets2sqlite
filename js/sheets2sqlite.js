@@ -18,7 +18,7 @@ var Sheets2sqlite = function(db, workbookId, tablesToProcess) {
         }
     };
     
-    this.url = 'https://spreadsheets.google.com/feeds/worksheets/' + workbookId + '/public/values?alt=json';
+    this.url = '//spreadsheets.google.com/feeds/worksheets/' + workbookId + '/public/values?alt=json';
 }
 
 Sheets2sqlite.prototype.start = function(done) {
