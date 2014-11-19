@@ -65,6 +65,8 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
     var table = {
         name: tableName,
         fkCount: false,
+        regularIndexes: [],
+        uniqueIndexes: [],
         createSQL: function() {
             var sSQL = 'CREATE TABLE ' + this.name + ' (';
             for(var i=0; i<this.columns.length; i++) {
@@ -94,7 +96,32 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
             
             sSQL += ');';
             
+            for(var i=0; i<this.regularIndexes.length; i++) {
+                var index = this.regularIndexes[i];
+                sSQL += this.indexSQL(index, false);
+            }
+            
+            for(var i=0; i<this.uniqueIndexes.length; i++) {
+                var index = this.uniqueIndexes[i];
+                sSQL += this.indexSQL(index, true);
+            }
+            
             return sSQL;
+        },
+        indexSQL: function(index, unique) {
+            var temp = 'CREATE ' + (unique ? 'UNIQUE ' : '') + 'INDEX IF NOT EXISTS ';
+            temp += index.name;
+            temp += ' ON ';
+            temp += this.name;
+            
+            var indexNames = [];
+            for(var i=0; i<index.columns.length; i++) {
+                indexNames.push(index.columns[i].name);
+            }
+            
+            temp += ' (' + indexNames.join(', ') + ');';
+            
+            return temp;
         },
         insertSQL: function() {
             var sSQL = '';
@@ -122,6 +149,21 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
             }
             
             return sSQL;
+        },
+        getRegularIndex: function(indexName) {
+            return this.getIndex(this.regularIndexes, indexName);
+        },
+        getUniqueIndex: function(indexName) {
+            return this.getIndex(this.uniqueIndexes, indexName);
+        },
+        getIndex: function(indexes, indexName) {
+            for(var i=0; i<indexes; i++) {
+                var index = indexes[i];
+                if(index.name == indexName) {
+                    return index;
+                }
+            }
+            return null;
         }
     };
     
@@ -130,26 +172,59 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
         
         if(item.gs$cell.row == '1') {
             var pos = parseInt(item.gs$cell.col, 10) - 1;
+            var value = item.gs$cell.$t;
+            var name = value.substring(0, value.indexOf('(')).trim();
+            var type = value.substring(value.indexOf('(') + 1, value.indexOf(')')).trim();
             
             var column = {
                 pos: pos,
-                name: item.gs$cell.$t,
-                type: '',
+                name: name,
+                type: type,
                 fk: ''
             };
             
             columns.push(column);
-            if(column.name.indexOf('id_') >= 0) {
-                table.fkCount++;
-            }
         } else if(item.gs$cell.row == '2') {
             var pos = parseInt(item.gs$cell.col, 10) - 1;
             var column = columns[pos];
-            column.type = item.gs$cell.$t;
-        } else if(item.gs$cell.row == '3' && table.fkCount > 0) {
-            var pos = parseInt(item.gs$cell.col, 10) - 1;
-            var column = columns[pos];
-            column.fk = item.gs$cell.$t;
+            var value = item.gs$cell.$t;
+            
+            if(value != '') {
+                var indexes = value.split(',');
+                for(var j=0; j<indexes.length; j++) {
+                    var index = indexes[j].trim();
+                    if(index.toLowerCase().indexOf('fk_') >= 0) {
+                        table.fkCount++;
+                        column.fk = index.substring(3, index.length);
+                    } else if(index.toLowerCase().indexOf('in_') >= 0) {
+                        var regularIndex = table.getRegularIndex(index.toLowerCase());
+                        
+                        if(regularIndex == null) {
+                            regularIndex = {
+                                name: index.toLowerCase(),
+                                columns: []
+                            };
+                            
+                            table.regularIndexes.push(regularIndex);
+                        }
+                        
+                        regularIndex.columns.push(column);
+                    } else if(index.toLowerCase().indexOf('un_') >= 0) {
+                        var uniqueIndex = table.getUniqueIndex(index.toLowerCase());
+                        
+                        if(uniqueIndex == null) {
+                            uniqueIndex = {
+                                name: index.toLowerCase(),
+                                columns: []
+                            };
+                            
+                            table.uniqueIndexes.push(uniqueIndex);
+                        }
+                        
+                        uniqueIndex.columns.push(column);
+                    }
+                }
+            }
         } else {
             break;
         }
@@ -164,7 +239,6 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     var rows = [];
     
     var linhaInicial = 3;
-    if(table.fkCount > 0) linhaInicial = 4;
     
     for(var i=0; i<worksheetData.feed.entry.length; i++) {
         var item = worksheetData.feed.entry[i];

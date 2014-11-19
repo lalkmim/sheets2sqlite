@@ -12,13 +12,19 @@ Pre-requisites
 Usage
 -----
 
-1) On the spreadsheet:
+1) On the spreadsheet, the first two lines should have table meta data, and from the third down the actual data.
 
-1.1) First line: the column name
+1.1) First line: the column name and type like "id(int)"
 
-1.2) Second line: column type
+1.2) Second line: column keys or indexes, comma-separated, with the following pattern:
 
-1.3) Third line (optional): foreign key like "table(referenced_column)"
+1.2.1) Foreign key like "fk_*referenced_table*(*referenced_column*)"
+
+1.2.2) Regular indexes like "in_*index_name*"
+
+1.2.3) Unique indexes like "un_*index_name*"
+
+1.3) Third line and below: actual data
 
 2) Include sheets2sqlite.js file after jquery and sql.js
 
