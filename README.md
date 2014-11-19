@@ -26,7 +26,7 @@ Usage
 
 1.3) Third line and below: actual data
 
-2) Include sheets2sqlite.js file after jquery and sql.js
+2) On your page, include sheets2sqlite.js file after jquery and sql.js
 
 ```HTML
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
