@@ -138,7 +138,12 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                     if(col.type.toLowerCase() == 'text') {
                         sSQLData += '\'' + escape(row.cells[i]) + '\'';
                     } else {
-                        sSQLData += escape(row.cells[i]);
+                        var value = escape(row.cells[i]);
+                        if(value === '') {
+                            value = 'NULL';
+                        }
+                        sSQLData += value;
+                        
                     }
                     
                     if(i+1 != this.columns.length) {
