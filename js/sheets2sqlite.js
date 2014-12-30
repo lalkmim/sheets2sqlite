@@ -135,15 +135,13 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                     var col = this.columns[i];
                     sSQL += col.name;
                     
-                    if(col.type.toLowerCase() == 'text') {
-                        sSQLData += '\'' + escape(row.cells[i]) + '\'';
+                    var value = escape(row.cells[i]);
+                    if(value === '') {
+                        sSQLData += 'NULL';
+                    } else if(col.type.toLowerCase() == 'text') {
+                        sSQLData += '\'' + value + '\'';
                     } else {
-                        var value = escape(row.cells[i]);
-                        if(value === '') {
-                            value = 'NULL';
-                        }
                         sSQLData += value;
-                        
                     }
                     
                     if(i+1 != this.columns.length) {
