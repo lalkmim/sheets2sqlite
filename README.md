@@ -1,7 +1,7 @@
 sheets2sqlite
 =============
 
-JavaScript library that converts google spreadsheets data to a client-side in-memory sqlite database.
+JavaScript library that converts data from google spreadsheets into a client-side in-memory sqlite database.
 
 Pre-requisites
 --------------
