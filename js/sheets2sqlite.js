@@ -188,7 +188,7 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
             table.validColumns.push(pos);
         } else if(item.gs$cell.row == '2') {
             var pos = parseInt(item.gs$cell.col, 10) - 1;
-            var column = columns[pos];
+            var column = columns[table.validColumns.indexOf(pos)];
             var value = item.gs$cell.$t;
             
             if(value !== '') {
