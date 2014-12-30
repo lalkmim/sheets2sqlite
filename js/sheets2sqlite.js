@@ -288,7 +288,7 @@ var escape = function(text) {
         return '';
     }
     
-    var temp = text.replace('\'', '\'\'');
+    var temp = text.replace(/'/g, '\'\'');
     temp = temp.replace('"', '""');
     return temp;
 };
