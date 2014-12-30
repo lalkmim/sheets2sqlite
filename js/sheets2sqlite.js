@@ -286,6 +286,10 @@ Sheets2sqlite.prototype.loadData = function(tables) {
 };
 
 var escape = function(text) {
+    if(text === '') {
+        return text;
+    }
+    
     var temp = text.replace('\'', '\'\'');
     temp = temp.replace('"', '""');
     return temp;
