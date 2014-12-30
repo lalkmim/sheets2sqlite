@@ -284,8 +284,8 @@ Sheets2sqlite.prototype.loadData = function(tables) {
 };
 
 var escape = function(text) {
-    if(text === '') {
-        return text;
+    if(text === '' || typeof text == 'undefined') {
+        return '';
     }
     
     var temp = text.replace('\'', '\'\'');
