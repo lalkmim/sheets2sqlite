@@ -279,7 +279,13 @@ Sheets2sqlite.prototype.loadData = function(tables) {
         console.log('insertSQL:', table.insertSQL());
         
         this.db.exec(table.createSQL());
-        this.db.exec(table.insertSQL());
+        var inserts = table.insertSQL().split(';');
+        for(var i=0; i<inserts.length; i++) {
+            var insert = inserts[i].trim();
+            if(insert !== '') {
+                this.db.exec(insert);
+            }
+        }
     }
 };
 
