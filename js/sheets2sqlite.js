@@ -19,7 +19,7 @@ var Sheets2sqlite = function(db, workbookId, tablesToProcess) {
     };
     
     this.url = '//spreadsheets.google.com/feeds/worksheets/' + workbookId + '/public/values?alt=json';
-}
+};
 
 Sheets2sqlite.prototype.start = function(done) {
     this.done = done;
@@ -43,7 +43,7 @@ Sheets2sqlite.prototype.start = function(done) {
         }
         that.control.reqOk = true;
     });
-}
+};
 
 Sheets2sqlite.prototype.processWorksheetData = function(tableName, worksheetData) {
     this.control.resps++;
@@ -58,13 +58,14 @@ Sheets2sqlite.prototype.processWorksheetData = function(tableName, worksheetData
         this.done();
         this.control.reset();
     }
-}
+};
 
 Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
     var columns = [];
     var table = {
         name: tableName,
         fkCount: false,
+        validColumns: [],
         regularIndexes: [],
         uniqueIndexes: [],
         createSQL: function() {
@@ -184,12 +185,13 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
             };
             
             columns.push(column);
+            table.validColumns.push(pos);
         } else if(item.gs$cell.row == '2') {
             var pos = parseInt(item.gs$cell.col, 10) - 1;
             var column = columns[pos];
             var value = item.gs$cell.$t;
             
-            if(value != '') {
+            if(value !== '') {
                 var indexes = value.split(',');
                 for(var j=0; j<indexes.length; j++) {
                     var index = indexes[j].trim();
@@ -199,7 +201,7 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                     } else if(index.toLowerCase().indexOf('in_') >= 0) {
                         var regularIndex = table.getRegularIndex(index.toLowerCase());
                         
-                        if(regularIndex == null) {
+                        if(regularIndex === null) {
                             regularIndex = {
                                 name: index.toLowerCase(),
                                 columns: []
@@ -212,7 +214,7 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                     } else if(index.toLowerCase().indexOf('un_') >= 0) {
                         var uniqueIndex = table.getUniqueIndex(index.toLowerCase());
                         
-                        if(uniqueIndex == null) {
+                        if(uniqueIndex === null) {
                             uniqueIndex = {
                                 name: index.toLowerCase(),
                                 columns: []
@@ -233,7 +235,7 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
     table.columns = columns;
     
     return table;
-}
+};
 
 Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     var rows = [];
@@ -249,19 +251,21 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
             continue;
         }
         
-        if(col == 0) {
+        if(col === 0) {
             rows.push({
                 row: row,
                 cells: []
             });
         }
         
-        var line = rows[row];
-        line.cells.push(item.gs$cell.$t);
+        if(table.validColumns.indexOf(col + 1) >= 0) {
+            var line = rows[row];
+            line.cells.push(item.gs$cell.$t);
+        }
     }
     
     table.rows = rows;
-}
+};
 
 Sheets2sqlite.prototype.loadData = function(tables) {
     for(var i=0; i<tables.length; i++) {
@@ -270,13 +274,13 @@ Sheets2sqlite.prototype.loadData = function(tables) {
         this.db.exec(table.createSQL());
         this.db.exec(table.insertSQL());
     }
-}
+};
 
 var escape = function(text) {
     var temp = text.replace('\'', '\'\'');
     temp = temp.replace('"', '""');
     return temp;
-}
+};
 
 var tableCreate = function () {
     function valconcat(vals, tagName) {
@@ -292,5 +296,5 @@ var tableCreate = function () {
         html += '<tbody>' + valconcat(rows, 'tr') + '</tbody>';
         tbl.innerHTML = html;
         return tbl;
-    }
-}
+    };
+};
