@@ -287,7 +287,9 @@ Sheets2sqlite.prototype.loadData = function(tables, doneFunction) {
         }
     }
     
-    doneFunction();
+    if(typeof doneFunction == 'function') {
+        doneFunction();
+    }
 };
 
 var escape = function(text) {
