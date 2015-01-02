@@ -276,7 +276,7 @@ Sheets2sqlite.prototype.loadData = function(tables) {
         var table = tables[i];
         
         console.log('createSQL:', table.createSQL());
-        console.log('insertSQL:', table.insertSQL());
+        //console.log('insertSQL:', table.insertSQL());
         
         this.db.exec(table.createSQL());
         var inserts = table.insertSQL().split(';');
