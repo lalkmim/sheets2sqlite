@@ -263,6 +263,11 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
         
         if(table.validColumns.indexOf(col) >= 0) {
             var line = rows[row];
+            
+            while(line.cells.length < table.validColumns.indexOf(col)) {
+                line.cells.push('');
+            }
+            
             line.cells.push(item.gs$cell.$t);
         }
     }
