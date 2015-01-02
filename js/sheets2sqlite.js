@@ -54,8 +54,7 @@ Sheets2sqlite.prototype.processWorksheetData = function(tableName, worksheetData
     }
     
     if(this.control.ok()) {
-        this.loadData(this.tables);
-        this.done();
+        this.loadData(this.tables, this.done);
         this.control.reset();
     }
 };
@@ -271,7 +270,7 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
     table.rows = rows;
 };
 
-Sheets2sqlite.prototype.loadData = function(tables) {
+Sheets2sqlite.prototype.loadData = function(tables, doneFunction) {
     for(var i=0; i<tables.length; i++) {
         var table = tables[i];
         
@@ -280,13 +279,15 @@ Sheets2sqlite.prototype.loadData = function(tables) {
         
         this.db.exec(table.createSQL());
         var inserts = table.insertSQL().split(';');
-        for(var i=0; i<inserts.length; i++) {
-            var insert = inserts[i].trim();
+        for(var j=0; j<inserts.length; j++) {
+            var insert = inserts[j].trim();
             if(insert !== '') {
                 this.db.exec(insert);
             }
         }
     }
+    
+    doneFunction();
 };
 
 var escape = function(text) {
