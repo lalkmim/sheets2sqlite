@@ -6,13 +6,13 @@ $(document).ready(function() {
     
     var process = new Sheets2sqlite(db, '1jY9BZne07LoR1nvJm-PLsmQPY6jIKkkdYtuwcjMlQwA', ['department', 'employee']);
     process.start(function() {
-        for(var i=0; i<this.tables.length; i++) {
-            var table = this.tables[i];
+        for(var i=0; i<process.tables.length; i++) {
+            var table = process.tables[i];
             $('div#sql').append(table.createSQL() + '<br /><br />');
         }
         
-        for(var i=0; i<this.tables.length; i++) {
-            var table = this.tables[i];
+        for(var i=0; i<process.tables.length; i++) {
+            var table = process.tables[i];
             $('div#sql').append(table.insertSQL() + '<br /><br />');
         }
         
