@@ -199,7 +199,6 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                     var index = indexes[j].trim();
                     if(index.toLowerCase().indexOf('fk') === 0) {
                         table.fkCount++;
-                        //column.fk = index.substring(3, index.length);
                         column.fk = index.substring(index.indexOf('(') + 1, index.indexOf(')')).replace('.', '(') + ')';
                     } else if(index.toLowerCase().indexOf('in_') >= 0) {
                         var regularIndex = table.getRegularIndex(index.toLowerCase());
