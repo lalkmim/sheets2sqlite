@@ -197,7 +197,7 @@ Sheets2sqlite.prototype.createTable = function(tableName, worksheetData) {
                 var indexes = value.split(',');
                 for(var j=0; j<indexes.length; j++) {
                     var index = indexes[j].trim();
-                    if(index.toLowerCase().indexOf('fk_') >= 0) {
+                    if(index.toLowerCase().indexOf('fk') === 0) {
                         table.fkCount++;
                         //column.fk = index.substring(3, index.length);
                         column.fk = index.substring(index.indexOf('(') + 1, index.indexOf(')')).replace('.', '(') + ')';
