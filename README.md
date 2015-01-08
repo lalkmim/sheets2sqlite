@@ -18,7 +18,7 @@ Usage
 
 1.2) Second line: column keys or indexes, comma-separated, with the following pattern:
 
-1.2.1) Foreign key like "fk_*referenced_table*(*referenced_column*)"
+1.2.1) Foreign key like "fk(*referenced_table*.*referenced_column*)"
 
 1.2.2) Regular indexes like "in_*index_name*"
 
