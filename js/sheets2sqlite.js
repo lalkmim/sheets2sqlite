@@ -260,7 +260,7 @@ Sheets2sqlite.prototype.insertData = function(table, worksheetData) {
             });
         }
         
-        if(table.validColumns.indexOf(col) >= 0) {
+        if(table.validColumns.indexOf(col) >= 0 && typeof rows[row] !== 'undefined') {
             var line = rows[row];
             
             while(line.cells.length < table.validColumns.indexOf(col)) {
@@ -322,3 +322,5 @@ var tableCreate = function () {
         return tbl;
     };
 };
+
+module.exports = Sheets2sqlite;
